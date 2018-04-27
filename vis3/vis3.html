@@ -1,0 +1,128 @@
+<html>
+
+<head>
+  <title>Final Project</title>
+  <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"></link>
+  <link rel="stylesheet" type="text/css" href="final_project.css"></link>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <!--Put your D3 import statement between these two lines-->
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <script src="d3-legend.js"></script>
+  <!--Put your D3 import statement between these two lines-->
+</head>
+
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-xs-2">
+      </div>
+
+      <div class="col-xs-8" style="margin: 0 auto">
+        <div id="vis-3"></div>
+        <div class="slidecontainer">
+          <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
+        </div>
+      </div>
+
+      <div class="col-xs-2"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+
+    var slider = document.getElementById("myRange");
+    slider.oninput = function() { change_threshold(this.value); };
+
+    // Found a lot of help on stacked bar charts here:
+    // https://bl.ocks.org/mbostock/3886208
+
+    // Setting up the graph dimensions and margins
+    var margin = {top: 30, right: 30, bottom: 60, left: 60};
+    var width = 600 - margin.left - margin.right;
+    var height = 400 - margin.top - margin.bottom;
+
+    // Setting the ranges
+    var x = d3.scaleBand().rangeRound([0, width]).paddingInner([0.5]).paddingOuter([0.2]).align([0.5]);
+    var y = d3.scaleLinear().range([height, 0]);
+    var z = d3.scaleOrdinal().range(['#00C', '#C00']);
+
+    var x_axis = d3.axisBottom(x);
+    var y_axis = d3.axisLeft(y);
+
+    d3.csv('./data/temp.csv', function(error, data) {
+
+      var above_below = data.columns.slice(1, 3);
+
+      x.domain(data.map(function(d) { return d.subreddit; }));
+      var y_max = d3.max(data, function(d) { return (parseInt(d.above) + parseInt(d.below)); });
+      y.domain([0, Math.ceil(y_max + (y_max * 0.10))]);
+      z.domain(above_below);
+
+      var svg = d3.select('#vis-3')
+                         .append('svg')
+                           .attr('width', width + margin.left + margin.right)
+                           .attr('height', height + margin.top + margin.bottom)
+                         .append('g')
+                           .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+      svg.append('g')
+         .selectAll('g')
+         .data(d3.stack().keys(above_below)(data))
+         .enter().append('g')
+           .attr('fill', function(d) { return z(d.key); })
+         .selectAll('rect')
+         .data(function(d) { return d; })
+         .enter().append('rect')
+           .attr('x', function(d) { return x(d.data.subreddit); })
+           .attr('y', function(d) { return y(d[1]); })
+           .attr('height', function(d) { return (y(d[0]) - y(d[1])); })
+           .attr('width', x.bandwidth());
+
+      svg.append('g')
+                  .attr('transform', 'translate(0, ' + height + ')')
+                  .attr('class', 'x-axis')
+                  .call(x_axis);
+
+      svg.append('g')
+                .attr('class', 'y-axis')
+                .call(y_axis);
+
+    });
+
+    function change_threshold(threshold) {
+
+      // TODO: Change this line to access the pre-processed file based on each threshold value
+      var file = './data/temp2.csv';
+
+      d3.csv(file, function(error, data) {
+
+        var above_below = data.columns.slice(1, 3);
+
+        x.domain(data.map(function(d) { return d.subreddit; }));
+        var y_max = d3.max(data, function(d) { return (parseInt(d.above) + parseInt(d.below)); });
+        y.domain([0, Math.ceil(y_max + (y_max * 0.10))]);
+        z.domain(above_below);
+
+        data_processed = [];
+        for (var i = 0; i < (data.length * 2); i++) {
+          if (i < data.length) {
+            data_processed.push({0: 0, 1: parseInt(data[i].above), data: data[i]});
+          }
+          else {
+            data_processed.push({0: parseInt(data[i%data.length].above), 1: (parseInt(data[i%data.length].above) + parseInt(data[i%data.length].below)), data: data[i]})
+          }
+        }
+
+        d3.select('svg').selectAll('rect').data(data_processed).transition().duration(500)
+                        .attr('y', function(d) { return y(d[1]); })
+                        .attr('height', function(d) { return (y(d[0]) - y(d[1])); });
+
+      });
+
+    }
+
+  </script>
+</body>
+
+</html>
