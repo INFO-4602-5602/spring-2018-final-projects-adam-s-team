@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style> /* set the CSS */
+
+body { font: 12px Arial;}
+
+path { 
+    stroke: steelblue;
+    stroke-width: 2;
+    fill: none;
+}
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: grey;
+    stroke-width: 1;
+    shape-rendering: crispEdges;
+}
+
+</style>
+<body>
+
+<!--
+<div id="option">
+    <input name="updateButton" 
+           type="button" 
+           value="Update"  />
+</div>
+-->
+<select id="selection">
+  <option value = "Week" selected>Whole Week</option>
+  <option value=0>Monday</option>
+  <option value=1>Tuesday</option>
+    <option value=2>Wednesday</option>
+    <option value=3>Thursday</option>
+    <option value=4>Friday</option>
+    <option value=5>Saturday</option>
+    <option value=6>Sunday</option>
+</select>
+<!-- load the d3.js library -->    
+<script src="http://d3js.org/d3.v4.min.js"></script>
+<script  src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script>
+
+// Set the dimensions of the canvas / graph
+var margin = {top: 30, right: 20, bottom: 30, left: 50},
+    width = 600 - margin.left - margin.right,
+    height = 270 - margin.top - margin.bottom;
+    
+// Create dictionaries for days
+var days =['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+
+var hours =Array.apply(null, Array(24)).map(function (_, i) {return i+1;});
+// Set the ranges
+
+var x = d3.scalePoint()
+            .padding([1])
+            .rangeRound([0, width]);
+var y = d3.scaleLinear().range([height, 0]);
+
+// Define the line
+var valueline_day = d3.line()
+    .x(function(d) { console.log(days[parseInt([d['day']])]); return x(days[parseInt([d['day']])]); })
+    .y(function(d) { console.log(d['karma']/d['num_users']);
+                    return y(parseFloat(d['karma']/d['num_users'])); });
+    
+var valueline_hour = d3.line()
+    .x(function(d) { return x(hours[parseInt(d['hour'])]); })
+    .y(function(d) { return y(parseFloat(d['karma']/d['num_users'])); });
+    
+// Adds the svg canvas
+var svg = d3.select("body")
+    .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", 
+              "translate(" + margin.left + "," + margin.top + ")");
+
+// Get the data
+d3.csv("reqd_academia.csv", function(error, data) {
+    data.sort(function(a,b){
+                return a.day - b.day;
+    });
+    // Scale the range of the data
+//    x.domain(d3.extent(data, function(d) { return parseInt(d['day']); }));
+    x.domain(days)
+    y.domain([0, d3.max(data, function(d) { return parseFloat(d['karma']/d['num_users']); })]);
+
+    svg.append("path")
+      .data([data])
+      .attr("class", "line")
+      .attr("d", valueline_day);
+
+  // Add the X Axis
+  svg.append("g")
+      .attr("transform", "translate(0," + height + ")")
+        .attr("class","axis axis--x")
+      .call(d3.axisBottom(x));
+
+  // Add the Y Axis
+  svg.append("g")
+        .attr("class","axis axis--y")
+      .call(d3.axisLeft(y));
+
+});
+
+//d3.select("#option").on("click",updateData)
+d3.select("#selection").on("change", updateData)
+//    console.log(d3.select('#selection').property('value'))
+// ** Update data section (Called from the onclick)
+function updateData() {
+    console.log('Inside Update function')
+    console.log(d3.select('#selection').property('value'))
+    if(d3.select('#selection').property('value') == "Week")
+    {
+            d3.csv("reqd_academia.csv", function(error, data) {
+                data.sort(function(a,b){
+                            return a.day - b.day;
+                });
+            console.log(data)
+            // Scale the range of the data
+
+            x.domain(days)
+            y.domain([0, d3.max(data, function(d) { return parseFloat(d['karma']/d['num_users']); })]);
+
+            // Select the section we want to apply our changes to
+            var svg = d3.select("body")
+            svg.selectAll(".line")
+              .data([data])
+              .transition()
+              .duration(750)
+              .attr("d", valueline_day);
+            // Call the X axis
+            svg.selectAll(".axis.axis--x").transition()
+              .duration(750)
+              .call(d3.axisBottom(x));
+
+            // Call the Y axis
+            svg.selectAll(".axis.axis--y").transition()
+              .duration(750)
+               .call(d3.axisLeft(y));
+        });
+        
+    }
+    else
+    {
+        
+        // Get the data again
+        d3.csv("reqd_academia_hr.csv", function(error, data) {
+        console.log('Inside Read CSV')
+
+        console.log(d3.select('#selection').property('value'))
+
+        x.domain(hours)
+        y.domain([0, d3.max(data, function(d) {  return parseFloat(d['karma']/d['num_users']); })]);
+
+        // Select the section we want to apply our changes to
+        var svg = d3.select("body")
+         // Call the X axis
+        svg.selectAll(".axis.axis--x").transition()
+          .duration(750)
+          .call(d3.axisBottom(x));
+
+        // Call the Y axis
+        svg.selectAll(".axis.axis--y").transition()
+          .duration(750)
+           .call(d3.axisLeft(y));
+
+        // Make the changes
+        var line = svg.selectAll(".line")
+            .data([data.filter(filterData)])
+
+        line.enter()
+            .filter(function(d) { 
+            return (d.day == d3.select('#selection').property('value'));
+        })
+
+
+            line.transition()// change the line
+            .duration(750)
+            .attr("d", valueline_hour(data.filter(filterData)
+        ));
+        });
+    }
+}
+
+function filterData(d){
+    var selection_curr = parseInt(d3.select('#selection').property('value'));
+    return d.day == selection_curr;
+}
+
+</script>
+</body>
