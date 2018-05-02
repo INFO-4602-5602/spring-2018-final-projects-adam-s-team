@@ -1,4 +1,4 @@
-hour,day,num_users,karma_diff,post_ID
+hour,day,num_users,karma_dif,post_ID
 13,6,4291,4,88t5ga
 13,6,4291,27,88t5b7
 12,6,4291,7,88t408
@@ -859,7 +859,9 @@ hour,day,num_users,karma_diff,post_ID
 13,5,2560,13,8akctl
 13,5,2560,6,8akbse
 13,5,2560,23,8akbj7
- 12,5,2560,338,8ak7xl
+13,5,2560,1,8akakg
+13,5,2560,96,8ak9my
+12,5,2560,338,8ak7xl
 12,5,2560,4,8ak4gx
 12,5,2560,81,8ak41y
 12,5,2560,0,8ak411
