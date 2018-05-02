@@ -18,7 +18,7 @@
       </div>
 
       <div class="col-xs-8" style="margin: 0 auto">
-        <h3 style="text-align: center">TITLE</h3>
+        <h4 style="text-align: center">Mean Karma (Normalized by Number of Users) Over Time</h3>
         <div><strong style="font-size: 14px">Select Subreddit</strong></div>
         <select id="subreddit-select" class="form-control">
           <option value="academia">Ask Academia</option>
@@ -51,9 +51,12 @@
   <script>
 
     // Set the dimensions of the canvas / graph
-    var margin = {top: 30, right: 20, bottom: 30, left: 50},
+    var margin = {top: 30, right: 20, bottom: 50, left: 70},
         width = 600 - margin.left - margin.right,
         height = 270 - margin.top - margin.bottom;
+
+    var file_day = './data/reqd_academia_day.csv';
+    var file_hour = './data/reqd_academia_hr.csv';
         
     // Create dictionaries for days
     var days =['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
@@ -85,7 +88,7 @@
                   "translate(" + margin.left + "," + margin.top + ")");
 
     // Get the data
-    d3.csv("reqd_academia.csv", function(error, data) {
+    d3.csv(file_day, function(error, data) {
         data.sort(function(a,b){
                     return a.day - b.day;
         });
@@ -111,18 +114,32 @@
             .attr("class","axis axis--y")
           .call(d3.axisLeft(y));
 
+      svg.append('text')
+                .attr('class', 'x-axis-label label')
+                .text('Time (Day of the Week)')
+                .attr('x', (width/2))
+                .attr('y', height + 40)
+                .style('fill', '#090');
+
+      svg.append('text')
+                .attr('class', 'y-axis-label label')
+                .text('Mean Karma')
+                .attr('transform', 'rotate(-90)')
+                .attr('x', -(height/2))
+                .attr('y', -40)
+                .style('fill', '#090');
+
     });
 
     // d3.select("#option").on("click",updateData)
-    d3.select("#selection").on("change", updateData)
-    // console.log(d3.select('#selection').property('value'))
-    // ** Update data section (Called from the onclick)
+    d3.select("#selection").on("change", updateData);
+
     function updateData() {
         // console.log('Inside Update function')
         // console.log(d3.select('#selection').property('value'))
         if(d3.select('#selection').property('value') == "Week")
         {
-                d3.csv("reqd_academia.csv", function(error, data) {
+                d3.csv(file_day, function(error, data) {
                     data.sort(function(a,b){
                                 return a.day - b.day;
                     });
@@ -149,6 +166,9 @@
                 svg.selectAll(".axis.axis--y").transition()
                   .duration(750)
                    .call(d3.axisLeft(y));
+
+                svg.select('.x-axis-label')
+                          .text('Time (Day of the Week)');
             });
             
         }
@@ -156,7 +176,7 @@
         {
             
             // Get the data again
-            d3.csv("reqd_academia_hr.csv", function(error, data) {
+            d3.csv(file_hour, function(error, data) {
             // console.log('Inside Read CSV')
 
             // console.log(d3.select('#selection').property('value'))
@@ -192,6 +212,9 @@
                 .attr("d", valueline_hour(data.filter(filterData)
             ));
             });
+
+            svg.select('.x-axis-label')
+                          .text('Time (Hour of the Day)');
         }
     }
 
@@ -202,125 +225,101 @@
 
     function change_subreddit(subreddit) {
 
-      var file_week = 'no_file_chosen';
-      var file_hour = 'no_file_chosen';
+      file_day = 'no_file_chosen';
+      file_hour = 'no_file_chosen';
       switch (subreddit) {
         case 'academia':
-          file_week = 'reqd_academia.csv';
-          file_hour = 'reqd_academia_hr.csv';
+          file_day = './data/reqd_academia_day.csv';
+          file_hour = './data/reqd_academia_hr.csv';
           break;
         case 'anthropology':
-          file_week = '';
-          file_hour = '';
+          file_day = './data/reqd_anthropology_day.csv';
+          file_hour = './data/reqd_anthropology_hr.csv';
           break;
         case "culinary":
-          file_week = '';
-          file_hour = '';
+          file_day = './data/reqd_culinary_day.csv';
+          file_hour = './data/reqd_culinary_hr.csv';
           break;
         case 'historians':
-          file_week = '';
-          file_hour = '';
+          file_day = './data/reqd_historians_day.csv';
+          file_hour = './data/reqd_historians_hr.csv';
           break;
         case 'men':
-          file_week = '';
-          file_hour = '';
+          file_day = './data/reqd_men_day.csv';
+          file_hour = './data/reqd_men_hour.csv';
           break;
         case 'science':
-          file_week = '';
-          file_hour = '';
+          file_day = './data/reqd_science_day.csv';
+          file_hour = './data/reqd_science_hr.csv';
           break;
         case 'socialscience':
-          file_week = '';
-          file_hour = '';
+          file_day = './data/reqd_socialscience_day.csv';
+          file_hour = './data/reqd_socialscience_hr.csv';
           break;
         case 'women':
-          file_week = '';
-          file_hour = '';
+          file_day = './data/reqd_women_day.csv';
+          file_hour = './data/reqd_women_hr.csv';
           break;
         default:
           console.log('default case reached');
           break;
       }
 
-      d3.csv(file, function(error, data) {
+      d3.select('svg').remove();
 
-        d3.select('svg').remove();
-
-        var svg = d3.select('#vis-1')
-                         .append('svg')
-                           .attr('width', width + margin.left + margin.right)
-                           .attr('height', height + margin.top + margin.bottom)
-                         .append('g')
-                           .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
-
-        dataset = {"children": []};
-
-        for (var i = 0; i < data.length; i++) {
-          dataset.children.push({"topics": data[i].topics, "mean_karma": Math.round(data[i].mean_karma)});
-        }
-
-        var color = d3.scaleOrdinal(d3.schemeCategory20);
-
-        var bubble = d3.pack(dataset)
-            .size([width, height])
-            .padding(1.5);
-
-        var nodes = d3.hierarchy(dataset)
-            .sum(function(d) { return d.mean_karma; });
-
-        var node = svg.selectAll(".node")
-            .data(bubble(nodes).descendants())
-            .enter()
-            .filter(function(d){
-                return !d.children;
-            })
+      var svg = d3.select("#vis-2")
+        .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
             .append("g")
-            .attr("class", "node")
-            .attr("transform", function(d) {
-                return "translate(" + d.x + "," + d.y + ")";
-            });
+            .attr("transform", 
+                  "translate(" + margin.left + "," + margin.top + ")");
 
-        node.append("title")
-            .text(function(d) {
-                return d.topics + ": " + d.mean_karma;
-            });
+      // Get the data
+      d3.csv(file_day, function(error, data) {
+          data.sort(function(a,b){
+                      return a.day - b.day;
+          });
+          // Scale the range of the data
+          // x.domain(d3.extent(data, function(d) { return parseInt(d['day']); }));
+          x.domain(days)
+          var y_max = d3.max(data, function(d) { return parseFloat(d['karma']/d['num_users']); });
+          y.domain([0, y_max + y_max * 0.1]);
 
-        node.append("circle")
-            .attr("r", function(d) {
-                return d.r;
-            })
-            .style("fill", function(d,i) {
-                return color(i);
-            });
+          svg.append("path")
+            .data([data])
+            .attr("class", "line")
+            .attr("d", valueline_day);
 
-        node.append("text")
-            .attr("dy", ".2em")
-            .style("text-anchor", "middle")
-            .text(function(d) {
-                return d.data.topics;
-            })
-            .attr("font-family", "sans-serif")
-            .attr("font-size", function(d){
-                return d.r/7;
-            })
-            .attr("fill", "white");
+        // Add the X Axis
+        svg.append("g")
+            .attr("transform", "translate(0," + height + ")")
+              .attr("class","axis axis--x")
+            .call(d3.axisBottom(x));
 
-        node.append("text")
-            .attr("dy", "1.3em")
-            .style("text-anchor", "middle")
-            .text(function(d) {
-                return d.data.mean_karma;
-            })
-            .attr("font-family",  "Gill Sans", "Gill Sans MT")
-            .attr("font-size", function(d){
-                return d.r/5;
-            })
-            .attr("fill", "white");
+        // Add the Y Axis
+        svg.append("g")
+              .attr("class","axis axis--y")
+            .call(d3.axisLeft(y));
 
-        d3.select(self.frameElement)
-            .style("height", width + "px");
+        svg.append('text')
+                          .attr('class', 'label')
+                          .text('Time (Day of the Week)')
+                          .attr('x', (width/2))
+                          .attr('y', height + 40)
+                          .style('fill', '#090');
+
+        svg.append('text')
+                  .attr('class', 'label')
+                  .text('Mean Karma')
+                  .attr('transform', 'rotate(-90)')
+                  .attr('x', -(height/2))
+                  .attr('y', -40)
+                  .style('fill', '#090');
 
       });
+
+      $('#selection').val("Week");
 
     }
 
