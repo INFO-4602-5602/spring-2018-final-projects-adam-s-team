@@ -1,0 +1,41 @@
+body {
+    font-family: sans-serif;
+    font-size: 11px;
+}
+
+.line {
+    fill: none;
+    stroke: #00F;
+    stroke-width: 2px;
+}
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: #000;
+    stroke-width: 1;
+    shape-rendering: crispEdges;
+}
+
+.point {
+    fill: #f00; 
+    stroke: #000;
+}
+
+.label {
+    text-anchor: middle;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.tooltip {
+    background-color: lightgray;
+    position: absolute;
+    text-align: center;
+    padding: 2px;
+    pointer-events: none;
+    border: 0px;
+    border-radius: 3px;
+    font-size: 10px;
+}
