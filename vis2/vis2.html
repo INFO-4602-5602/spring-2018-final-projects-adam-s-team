@@ -1,0 +1,333 @@
+<html>
+<head>
+  <title>Final Project</title>
+  <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"></link>
+  <link rel="stylesheet" type="text/css" href="vis2.css"></link>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <!--Put your D3 import statement between these two lines-->
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <script src="../d3-legend.js"></script>
+  <!--Put your D3 import statement between these two lines-->
+</head>
+
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-xs-2">
+      </div>
+
+      <div class="col-xs-8" style="margin: 0 auto">
+        <h3 style="text-align: center">TITLE</h3>
+        <div><strong style="font-size: 14px">Select Subreddit</strong></div>
+        <select id="subreddit-select" class="form-control">
+          <option value="academia">Ask Academia</option>
+          <option value="anthropology">Ask Anthropology</option>
+          <option value="culinary">Ask Culinary</option>
+          <option value="historians">Ask Historians</option>
+          <option value="men">Ask Men</option>
+          <option value="science">Ask Science</option>
+          <option value="socialscience">Ask Social Science</option>
+          <option value="women">Ask Women</option>
+        </select>
+        <div><strong style="font-size: 14px">Select Time Frame</strong></div>
+        <select id="selection" class="form-control">
+          <option value ="Week" selected>Entire Week</option>
+          <option value=0>Monday</option>
+          <option value=1>Tuesday</option>
+          <option value=2>Wednesday</option>
+          <option value=3>Thursday</option>
+          <option value=4>Friday</option>
+          <option value=5>Saturday</option>
+          <option value=6>Sunday</option>
+        </select>
+        <div id="vis-2"></div>
+      </div>
+
+      <div class="col-xs-2"></div>
+    </div>
+  </div>
+
+  <script>
+
+    // Set the dimensions of the canvas / graph
+    var margin = {top: 30, right: 20, bottom: 30, left: 50},
+        width = 600 - margin.left - margin.right,
+        height = 270 - margin.top - margin.bottom;
+        
+    // Create dictionaries for days
+    var days =['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+
+    var hours =Array.apply(null, Array(24)).map(function (_, i) {return i+1;});
+    // Set the ranges
+
+    var x = d3.scalePoint()
+                .padding([1])
+                .rangeRound([0, width]);
+    var y = d3.scaleLinear().range([height, 0]);
+
+    // Define the line
+    var valueline_day = d3.line()
+        .x(function(d) { return x(days[parseInt([d['day']])]); })
+        .y(function(d) { return y(parseFloat(d['karma']/d['num_users'])); });
+        
+    var valueline_hour = d3.line()
+        .x(function(d) { return x(hours[parseInt(d['hour'])]); })
+        .y(function(d) { return y(parseFloat(d['karma']/d['num_users'])); });
+        
+    // Adds the svg canvas
+    var svg = d3.select("#vis-2")
+        .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", 
+                  "translate(" + margin.left + "," + margin.top + ")");
+
+    // Get the data
+    d3.csv("reqd_academia.csv", function(error, data) {
+        data.sort(function(a,b){
+                    return a.day - b.day;
+        });
+        // Scale the range of the data
+        // x.domain(d3.extent(data, function(d) { return parseInt(d['day']); }));
+        x.domain(days)
+        var y_max = d3.max(data, function(d) { return parseFloat(d['karma']/d['num_users']); });
+        y.domain([0, y_max + y_max * 0.1]);
+
+        svg.append("path")
+          .data([data])
+          .attr("class", "line")
+          .attr("d", valueline_day);
+
+      // Add the X Axis
+      svg.append("g")
+          .attr("transform", "translate(0," + height + ")")
+            .attr("class","axis axis--x")
+          .call(d3.axisBottom(x));
+
+      // Add the Y Axis
+      svg.append("g")
+            .attr("class","axis axis--y")
+          .call(d3.axisLeft(y));
+
+    });
+
+    // d3.select("#option").on("click",updateData)
+    d3.select("#selection").on("change", updateData)
+    // console.log(d3.select('#selection').property('value'))
+    // ** Update data section (Called from the onclick)
+    function updateData() {
+        // console.log('Inside Update function')
+        // console.log(d3.select('#selection').property('value'))
+        if(d3.select('#selection').property('value') == "Week")
+        {
+                d3.csv("reqd_academia.csv", function(error, data) {
+                    data.sort(function(a,b){
+                                return a.day - b.day;
+                    });
+                // console.log(data)
+                // Scale the range of the data
+
+                x.domain(days)
+                var y_max = d3.max(data, function(d) { return parseFloat(d['karma']/d['num_users']); });
+                y.domain([0, y_max + y_max * 0.1]);
+
+                // Select the section we want to apply our changes to
+                var svg = d3.select("body")
+                svg.selectAll(".line")
+                  .data([data])
+                  .transition()
+                  .duration(750)
+                  .attr("d", valueline_day);
+                // Call the X axis
+                svg.selectAll(".axis.axis--x").transition()
+                  .duration(750)
+                  .call(d3.axisBottom(x));
+
+                // Call the Y axis
+                svg.selectAll(".axis.axis--y").transition()
+                  .duration(750)
+                   .call(d3.axisLeft(y));
+            });
+            
+        }
+        else
+        {
+            
+            // Get the data again
+            d3.csv("reqd_academia_hr.csv", function(error, data) {
+            // console.log('Inside Read CSV')
+
+            // console.log(d3.select('#selection').property('value'))
+
+            x.domain(hours)
+            var y_max = d3.max(data, function(d) { return parseFloat(d['karma']/d['num_users']); });
+            y.domain([0, y_max + y_max * 0.1]);
+
+            // Select the section we want to apply our changes to
+            var svg = d3.select("body")
+             // Call the X axis
+            svg.selectAll(".axis.axis--x").transition()
+              .duration(750)
+              .call(d3.axisBottom(x));
+
+            // Call the Y axis
+            svg.selectAll(".axis.axis--y").transition()
+              .duration(750)
+               .call(d3.axisLeft(y));
+
+            // Make the changes
+            var line = svg.selectAll(".line")
+                .data([data.filter(filterData)])
+
+            line.enter()
+                .filter(function(d) { 
+                return (d.day == d3.select('#selection').property('value'));
+            })
+
+
+                line.transition()// change the line
+                .duration(750)
+                .attr("d", valueline_hour(data.filter(filterData)
+            ));
+            });
+        }
+    }
+
+    function filterData(d){
+        var selection_curr = parseInt(d3.select('#selection').property('value'));
+        return d.day == selection_curr;
+    }
+
+    function change_subreddit(subreddit) {
+
+      var file_week = 'no_file_chosen';
+      var file_hour = 'no_file_chosen';
+      switch (subreddit) {
+        case 'academia':
+          file_week = 'reqd_academia.csv';
+          file_hour = 'reqd_academia_hr.csv';
+          break;
+        case 'anthropology':
+          file_week = '';
+          file_hour = '';
+          break;
+        case "culinary":
+          file_week = '';
+          file_hour = '';
+          break;
+        case 'historians':
+          file_week = '';
+          file_hour = '';
+          break;
+        case 'men':
+          file_week = '';
+          file_hour = '';
+          break;
+        case 'science':
+          file_week = '';
+          file_hour = '';
+          break;
+        case 'socialscience':
+          file_week = '';
+          file_hour = '';
+          break;
+        case 'women':
+          file_week = '';
+          file_hour = '';
+          break;
+        default:
+          console.log('default case reached');
+          break;
+      }
+
+      d3.csv(file, function(error, data) {
+
+        d3.select('svg').remove();
+
+        var svg = d3.select('#vis-1')
+                         .append('svg')
+                           .attr('width', width + margin.left + margin.right)
+                           .attr('height', height + margin.top + margin.bottom)
+                         .append('g')
+                           .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+        dataset = {"children": []};
+
+        for (var i = 0; i < data.length; i++) {
+          dataset.children.push({"topics": data[i].topics, "mean_karma": Math.round(data[i].mean_karma)});
+        }
+
+        var color = d3.scaleOrdinal(d3.schemeCategory20);
+
+        var bubble = d3.pack(dataset)
+            .size([width, height])
+            .padding(1.5);
+
+        var nodes = d3.hierarchy(dataset)
+            .sum(function(d) { return d.mean_karma; });
+
+        var node = svg.selectAll(".node")
+            .data(bubble(nodes).descendants())
+            .enter()
+            .filter(function(d){
+                return !d.children;
+            })
+            .append("g")
+            .attr("class", "node")
+            .attr("transform", function(d) {
+                return "translate(" + d.x + "," + d.y + ")";
+            });
+
+        node.append("title")
+            .text(function(d) {
+                return d.topics + ": " + d.mean_karma;
+            });
+
+        node.append("circle")
+            .attr("r", function(d) {
+                return d.r;
+            })
+            .style("fill", function(d,i) {
+                return color(i);
+            });
+
+        node.append("text")
+            .attr("dy", ".2em")
+            .style("text-anchor", "middle")
+            .text(function(d) {
+                return d.data.topics;
+            })
+            .attr("font-family", "sans-serif")
+            .attr("font-size", function(d){
+                return d.r/7;
+            })
+            .attr("fill", "white");
+
+        node.append("text")
+            .attr("dy", "1.3em")
+            .style("text-anchor", "middle")
+            .text(function(d) {
+                return d.data.mean_karma;
+            })
+            .attr("font-family",  "Gill Sans", "Gill Sans MT")
+            .attr("font-size", function(d){
+                return d.r/5;
+            })
+            .attr("fill", "white");
+
+        d3.select(self.frameElement)
+            .style("height", width + "px");
+
+      });
+
+    }
+
+    $('#subreddit-select').change(function() {
+      var selected_subreddit = $(this).val()
+      change_subreddit(selected_subreddit);
+    });
+
+  </script>
+</body>
