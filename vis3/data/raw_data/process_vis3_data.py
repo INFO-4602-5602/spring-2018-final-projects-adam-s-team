@@ -42,7 +42,7 @@ for i in range(max_karma):
 		else:
 			below = below + 1
 
-	out_file.write('Ask_Academia,' + str(above) + ',' + str(below) + '\n')
+	out_file.write('Academia,' + str(above) + ',' + str(below) + '\n')
 
 	above = 0
 	below = 0
@@ -54,7 +54,7 @@ for i in range(max_karma):
 		else:
 			below = below + 1
 
-	out_file.write('Ask_Historians,' + str(above) + ',' + str(below) + '\n')
+	out_file.write('Historians,' + str(above) + ',' + str(below) + '\n')
 
 	above = 0
 	below = 0
@@ -66,7 +66,7 @@ for i in range(max_karma):
 		else:
 			below = below + 1
 
-	out_file.write('Ask_Men,' + str(above) + ',' + str(below) + '\n')
+	out_file.write('Men,' + str(above) + ',' + str(below) + '\n')
 
 	above = 0
 	below = 0
@@ -78,7 +78,7 @@ for i in range(max_karma):
 		else:
 			below = below + 1
 
-	out_file.write('Ask_Science,' + str(above) + ',' + str(below) + '\n')
+	out_file.write('Science,' + str(above) + ',' + str(below) + '\n')
 
 	above = 0
 	below = 0
@@ -90,7 +90,7 @@ for i in range(max_karma):
 		else:
 			below = below + 1
 
-	out_file.write('Ask_Social_Science,' + str(above) + ',' + str(below) + '\n')
+	out_file.write('SocialScience,' + str(above) + ',' + str(below) + '\n')
 
 	above = 0
 	below = 0
@@ -102,7 +102,7 @@ for i in range(max_karma):
 		else:
 			below = below + 1
 
-	out_file.write('Ask_Women,' + str(above) + ',' + str(below) + '\n')
+	out_file.write('Women,' + str(above) + ',' + str(below) + '\n')
 
 	above = 0
 	below = 0
@@ -114,7 +114,7 @@ for i in range(max_karma):
 		else:
 			below = below + 1
 
-	out_file.write('Ask_Culinary,' + str(above) + ',' + str(below) + '\n')
+	out_file.write('Culinary,' + str(above) + ',' + str(below) + '\n')
 
 	above = 0
 	below = 0
@@ -126,6 +126,6 @@ for i in range(max_karma):
 		else:
 			below = below + 1
 
-	out_file.write('Ask_Anthropology,' + str(above) + ',' + str(below) + '\n')
+	out_file.write('Anthropology,' + str(above) + ',' + str(below) + '\n')
 
 	out_file.close()

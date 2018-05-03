@@ -19,15 +19,15 @@
       </div>
 
       <div class="col-xs-8" style="margin: 0 auto">
-        <h3 style="text-align: center">Topic Clusters by Mean Karma Score</h3>
-        <div><strong style="font-size: 16px">Select Subreddit</strong></div>
+        <h5 style="text-align: center">Topic Clusters by Mean Karma Score</h5>
+        <div><div style="font-size: 16px">Select Subreddit</div></div>
         <select id="subreddit-select" class="form-control">
           <option value="academia">Ask Academia</option>
           <option value="anthropology">Ask Anthropology</option>
           <option value="culinary">Ask Culinary</option>
           <option value="historians">Ask Historians</option>
           <option value="men">Ask Men</option>
-          <option value="science">Ask Science</option>
+          <option value="science" selected>Ask Science</option>
           <option value="socialscience">Ask Social Science</option>
           <option value="women">Ask Women</option>
         </select>
@@ -44,9 +44,9 @@
     // https://bl.ocks.org/alokkshukla/3d6be4be0ef9f6977ec6718b2916d168
 
     // Setting up the graph dimensions and margins
-    var margin = {top: 10, right: 10, bottom: 10, left: 10};
+    var margin = {top: 5, right: 10, bottom: 5, left: 10};
     var width = 500 - margin.left - margin.right;
-    var height = 500 - margin.top - margin.bottom;
+    var height = 385 - margin.top - margin.bottom;
 
     var format = d3.format(",d");
 
@@ -63,7 +63,7 @@
                          .append('g')
                            .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
-    d3.csv("./data/topic_modeling_Historians.csv", function(error, data) {
+    d3.csv("./data/topic_modeling_Science.csv", function(error, data) {
 
       dataset = {"children": []};
 
@@ -109,11 +109,11 @@
           .attr("dy", ".2em")
           .style("text-anchor", "middle")
           .text(function(d) {
-              return d.data.topics.substring(0, d.r / 3);
+              return d.data.topics;
           })
           .attr("font-family", "sans-serif")
           .attr("font-size", function(d){
-              return d.r/5;
+              return d.r/5.5;
           })
           .attr("fill", "white");
 
