@@ -17,7 +17,10 @@ Set up a python server using one of the following two commands based on the pyth
 In your web browser, type in localhost:8000 and the dashboard with the three visualizations can be viewed. 
 
 <h4> Visualizations on the dashboard </h4>
+
+
 The first visualization has a bubble graph that indicates the clustering of the posts in a subreddit by topic. The size of the bubbles indicates average karma of posts in corresponding topics. You can switch back and forth between subreddits by means of a drop-down menu.
+
 
 
 The second visualization shows a stacked bar chart indicating the number of posts per subreddit. The stacks indicate proportion ofthe posts per subreddit which were above or below the Karma threshold selected by the viewer.
