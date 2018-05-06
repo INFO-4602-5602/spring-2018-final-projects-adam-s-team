@@ -22,6 +22,7 @@ The first visualization has a bubble graph that indicates the clustering of the 
 
 The second visualization shows a stacked bar chart indicating the number of posts per subreddit. The stacks indicate proportion ofthe posts per subreddit which were above or below the Karma threshold selected by the viewer.
 
+
 The third visualization indicates a line graph that shows temporal information about the mean Karma normalized by the number of users. This includes semantic zooming where this information can be obtained at the level of the entire week or the viewer could select a particular day in a week to see how the Karma varies over the course of the day. The views can be switched between time scales and subreddits by means of drop down menus.
 
 <h4> Analysis of  visualizations </h4>
